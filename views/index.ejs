@@ -22,13 +22,13 @@
     <main>
       <section class="container">
         <div class="title-container">
-          <h1>Todolist</h1>
-          <span>Wednesday, November 23 2022</span>
+          <h1><%= title %></h1>
+          <span><%= date %></span>
         </div>
         <div class="formContainer">
           <form class="addItemForm" action="/" method="post">
             <input type="text" name="todoItemInput" placeholder="Todo" required />
-            <button type="submit">Add New</button>
+            <button type="submit" name="customListSubmit" value="<%= title %>">Add New</button>
           </form>
         </div>
 
@@ -36,7 +36,7 @@
           <% todoItems.forEach(function(item) { %>
               <div class="formContainer todolist">
                 <form class="deleteItemForm" action="/delete" method="post">
-                  <input type="checkbox" onchange="this.form.submit()" />
+                  <input type="checkbox" name="checkbox" value="<%= item._id %>" onchange="this.form.submit()" />
                   <p><%= item.name %></p>
                 </form> 
               </div>
