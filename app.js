@@ -37,7 +37,7 @@ app.get("/", function (req, res) {
       });
     } else {
       res.render("index", {
-        title: "Todolist",
+        title: "Today",
         date: today.getDate(),
         todoItems: foundItem,
       });
@@ -85,7 +85,7 @@ app.post("/", function (req, res) {
 
   const item = new Item({ name: todoItem });
 
-  if (customList === "Todolist") {
+  if (customList === "Today") {
     item.save();
 
     res.redirect("/");
@@ -103,7 +103,7 @@ app.post("/delete", function (req, res) {
 
   const customList = _.startCase(req.body.customListName);
 
-  if (customList === "Todolist") {
+  if (customList === "Today") {
     Item.findByIdAndRemove(itemId, function (err) {
       if (!err) {
         res.redirect("/");
