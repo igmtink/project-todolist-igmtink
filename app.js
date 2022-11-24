@@ -27,57 +27,14 @@ const item3 = new Item({ name: "<-- Hit this to delete an item." });
 
 const defaultItems = [item1, item2, item3];
 
-let defaultStarter = false;
-
-const defaultItemSchemaValidator = new mongoose.Schema({
-  name: String,
-  default: Boolean,
-});
-
-const DefaultItemValidator = new mongoose.model(
-  "DefaultItemValidator",
-  defaultItemSchemaValidator
-);
-
 app.get("/", function (req, res) {
   Item.find({}, function (err, foundItem) {
     if (foundItem.length === 0) {
       // res.render("index", { title: "Todolist", date: today.getDate() });
 
-      DefaultItemValidator.findOne(
-        { name: "Todolist" },
-        function (err, foundList) {
-          if (!foundList) {
-            const todolistValidator = new DefaultItemValidator({
-              name: "Todolist",
-              default: false,
-            });
-
-            todolistValidator.save();
-            console.log("Saved");
-            res.redirect("/");
-          } else {
-            if (foundList.default === false) {
-              Item.insertMany(defaultItems, function (err) {
-                DefaultItemValidator.updateOne(
-                  { name: "Todolist" },
-                  { default: true },
-                  function (err) {}
-                );
-
-                console.log("Updated");
-                res.redirect("/");
-              });
-            } else {
-              res.render("index", {
-                title: "Todolist",
-                date: today.getDate(),
-                todoItems: foundItem,
-              });
-            }
-          }
-        }
-      );
+      Item.insertMany(defaultItems, function (err) {
+        res.redirect("/");
+      });
     } else {
       res.render("index", {
         title: "Todolist",
@@ -144,11 +101,23 @@ app.post("/", function (req, res) {
 app.post("/delete", function (req, res) {
   const itemId = req.body.checkbox;
 
-  Item.findByIdAndRemove(itemId, function (err) {
-    if (!err) {
-      res.redirect("/");
-    }
-  });
+  const customList = _.startCase(req.body.customListName);
+
+  if (customList === "Todolist") {
+    Item.findByIdAndRemove(itemId, function (err) {
+      if (!err) {
+        res.redirect("/");
+      }
+    });
+  } else {
+    CustomList.findOneAndUpdate(
+      { name: customList },
+      { $pull: { item: { _id: itemId } } },
+      function (err, result) {
+        res.redirect("/" + customList);
+      }
+    );
+  }
 });
 
 app.listen(port, function () {
